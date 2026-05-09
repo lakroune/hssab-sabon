@@ -1,924 +1,473 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Hsab Sabon | Easy Coloc</title>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Hsab Sabon | Easy Coloc</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
-        body {
-            font-family: 'Instrument Sans', sans-serif;
-            background: #FDFDFC;
-            color: #1b1b18;
-            overflow-x: hidden;
-        }
+        <!-- Styles / Scripts -->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        /* ===== SCROLL ANIMATIONS ===== */
-        .reveal {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+        <style>
+            /* =============================================
+               SCROLL ANIMATION BASE STATES
+               ============================================= */
 
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .reveal-left {
-            opacity: 0;
-            transform: translateX(-60px);
-            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .reveal-left.active {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .reveal-right {
-            opacity: 0;
-            transform: translateX(60px);
-            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .reveal-right.active {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .reveal-scale {
-            opacity: 0;
-            transform: scale(0.85);
-            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .reveal-scale.active {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .reveal-rotate {
-            opacity: 0;
-            transform: rotate(-8deg) scale(0.9);
-            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .reveal-rotate.active {
-            opacity: 1;
-            transform: rotate(0) scale(1);
-        }
-
-        /* Stagger delays */
-        .delay-1 {
-            transition-delay: 0.1s;
-        }
-
-        .delay-2 {
-            transition-delay: 0.2s;
-        }
-
-        .delay-3 {
-            transition-delay: 0.3s;
-        }
-
-        .delay-4 {
-            transition-delay: 0.4s;
-        }
-
-        .delay-5 {
-            transition-delay: 0.5s;
-        }
-
-        /* Navbar */
-        nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 24px;
-            max-width: 1280px;
-            margin: 0 auto;
-            border-bottom: 1px solid #f3f4f6;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: rgba(253, 253, 252, 0.85);
-            backdrop-filter: blur(12px);
-            transition: box-shadow 0.3s ease;
-        }
-
-        nav.scrolled {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        }
-
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .nav-logo-icon {
-            width: 40px;
-            height: 40px;
-            background: #fbbf24;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.4s ease;
-        }
-
-        .nav-logo:hover .nav-logo-icon {
-            transform: rotate(12deg) scale(1.1);
-        }
-
-        .nav-logo-icon span {
-            color: white;
-            font-weight: bold;
-            font-size: 1.25rem;
-        }
-
-        .nav-logo-text {
-            font-weight: 600;
-            font-size: 1.125rem;
-            letter-spacing: -0.025em;
-            text-transform: uppercase;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 16px;
-            align-items: center;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #1b1b18;
-            font-size: 0.875rem;
-            font-weight: 500;
-            position: relative;
-            padding: 4px 0;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #fbbf24;
-            transition: width 0.3s ease;
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        .btn-primary {
-            padding: 8px 16px;
-            background: #1b1b18;
-            color: white;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            display: inline-block;
-        }
-
-        .btn-primary:hover {
-            background: #fbbf24;
-            color: #1b1b18;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(251, 191, 36, 0.3);
-        }
-
-        /* Hero */
-        .hero {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 64px 24px 96px;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 48px;
-            align-items: center;
-        }
-
-        @media (min-width: 1024px) {
-            .hero {
-                grid-template-columns: 1fr 1fr;
-                gap: 48px;
-            }
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px 12px;
-            border-radius: 9999px;
-            background: #fffbeb;
-            border: 1px solid #fef3c7;
-            color: #b45309;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 24px;
-            animation: pulse-badge 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse-badge {
-
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4);
-            }
-
-            50% {
-                box-shadow: 0 0 0 8px rgba(251, 191, 36, 0);
-            }
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            line-height: 1.1;
-            margin-bottom: 24px;
-        }
-
-        @media (min-width: 1024px) {
-            .hero h1 {
-                font-size: 4.5rem;
-            }
-        }
-
-        .hero h1 .highlight {
-            color: #fbbf24;
-            font-style: italic;
-            display: inline-block;
-            position: relative;
-        }
-
-        .hero h1 .highlight::after {
-            content: '';
-            position: absolute;
-            bottom: 4px;
-            left: 0;
-            width: 100%;
-            height: 8px;
-            background: rgba(251, 191, 36, 0.3);
-            border-radius: 4px;
-            z-index: -1;
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.6s ease 0.5s;
-        }
-
-        .reveal-left.active .highlight::after {
-            transform: scaleX(1);
-        }
-
-        .hero p {
-            color: #6b7280;
-            font-size: 1.125rem;
-            line-height: 1.625;
-            margin-bottom: 32px;
-            max-width: 576px;
-        }
-
-        .hero-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        @media (min-width: 640px) {
-            .hero-buttons {
-                flex-direction: row;
-            }
-        }
-
-        .btn-cta {
-            padding: 16px 32px;
-            background: #fbbf24;
-            color: #1b1b18;
-            font-weight: 700;
-            border-radius: 12px;
-            font-size: 1.125rem;
-            text-align: center;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            display: inline-block;
-            box-shadow: 0 10px 30px rgba(251, 191, 36, 0.2);
-        }
-
-        .btn-cta:hover {
-            background: #fcd34d;
-            transform: translateY(-3px);
-            box-shadow: 0 16px 40px rgba(251, 191, 36, 0.35);
-        }
-
-        .btn-outline {
-            padding: 16px 32px;
-            background: white;
-            border: 1px solid #e5e7eb;
-            font-weight: 600;
-            border-radius: 12px;
-            font-size: 1.125rem;
-            text-align: center;
-            text-decoration: none;
-            color: #1b1b18;
-            transition: all 0.3s ease;
-            display: inline-block;
-        }
-
-        .btn-outline:hover {
-            background: #f9fafb;
-            border-color: #d1d5db;
-            transform: translateY(-2px);
-        }
-
-        /* Hero Card */
-        .hero-visual {
-            position: relative;
-        }
-
-        .hero-blob {
-            position: absolute;
-            top: -40px;
-            right: -40px;
-            width: 256px;
-            height: 256px;
-            background: #fef3c7;
-            border-radius: 50%;
-            filter: blur(64px);
-            opacity: 0.5;
-            animation: blob-float 6s ease-in-out infinite;
-        }
-
-        @keyframes blob-float {
-
-            0%,
-            100% {
-                transform: translate(0, 0) scale(1);
-            }
-
-            33% {
-                transform: translate(20px, -20px) scale(1.1);
-            }
-
-            66% {
-                transform: translate(-10px, 10px) scale(0.95);
-            }
-        }
-
-        .hero-card {
-            position: relative;
-            background: white;
-            border: 1px solid #f3f4f6;
-            border-radius: 24px;
-            padding: 32px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-            transition: transform 0.5s ease, box-shadow 0.5s ease;
-        }
-
-        .hero-card:hover {
-            transform: translateY(-8px) rotate(1deg);
-            box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 32px;
-        }
-
-        .card-header-label {
-            color: #9ca3af;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-        }
-
-        .card-header-value {
-            font-size: 1.875rem;
-            font-weight: 900;
-        }
-
-        .card-badge {
-            background: #dcfce7;
-            color: #15803d;
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 4px;
-            animation: bounce-in 0.6s ease 0.8s both;
-        }
-
-        @keyframes bounce-in {
-            0% {
-                transform: scale(0);
+            /* Elements hidden before animation */
+            [data-animate] {
                 opacity: 0;
+                transition-property: opacity, transform;
+                transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+                transition-duration: 0.75s;
+                will-change: opacity, transform;
             }
 
-            50% {
-                transform: scale(1.2);
+            /* Fade Up (default) */
+            [data-animate="fade-up"] {
+                transform: translateY(40px);
             }
 
-            100% {
-                transform: scale(1);
+            /* Fade Down */
+            [data-animate="fade-down"] {
+                transform: translateY(-30px);
+            }
+
+            /* Fade Left */
+            [data-animate="fade-left"] {
+                transform: translateX(-40px);
+            }
+
+            /* Fade Right */
+            [data-animate="fade-right"] {
+                transform: translateX(40px);
+            }
+
+            /* Scale In */
+            [data-animate="scale-in"] {
+                transform: scale(0.88);
+            }
+
+            /* Blur In */
+            [data-animate="blur-in"] {
+                transform: translateY(20px);
+                filter: blur(8px);
+            }
+
+            /* =============================================
+               VISIBLE STATE (triggered by JS)
+               ============================================= */
+            [data-animate].is-visible {
                 opacity: 1;
+                transform: translateY(0) translateX(0) scale(1);
+                filter: blur(0);
             }
-        }
 
-        .card-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            background: #f9fafb;
-            border-radius: 16px;
-            border: 1px solid #f3f4f6;
-            margin-bottom: 16px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
+            /* Staggered delays for children */
+            [data-delay="100"] { transition-delay: 0.1s; }
+            [data-delay="200"] { transition-delay: 0.2s; }
+            [data-delay="300"] { transition-delay: 0.3s; }
+            [data-delay="400"] { transition-delay: 0.4s; }
+            [data-delay="500"] { transition-delay: 0.5s; }
+            [data-delay="600"] { transition-delay: 0.6s; }
+            [data-delay="700"] { transition-delay: 0.7s; }
 
-        .card-item:hover {
-            background: #fffbeb;
-            border-color: #fcd34d;
-            transform: translateX(4px);
-        }
-
-        .card-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .card-item-dim {
-            opacity: 0.6;
-        }
-
-        .card-item-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        .card-item-info {
-            flex: 1;
-            margin-left: 12px;
-        }
-
-        .card-item-title {
-            font-weight: 700;
-            font-size: 0.875rem;
-        }
-
-        .card-item-sub {
-            color: #9ca3af;
-            font-size: 0.75rem;
-        }
-
-        .card-item-amount {
-            font-weight: 700;
-            font-size: 0.875rem;
-        }
-
-        .card-item-pending {
-            color: #d97706;
-            font-style: italic;
-        }
-
-        /* Features */
-        .features {
-            padding: 96px 24px;
-            background: white;
-            border-top: 1px solid #f3f4f6;
-        }
-
-        .features-inner {
-            max-width: 1280px;
-            margin: 0 auto;
-        }
-
-        .features-header {
-            text-align: center;
-            max-width: 768px;
-            margin: 0 auto 80px;
-        }
-
-        .features-label {
-            color: #fbbf24;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            font-size: 0.875rem;
-            margin-bottom: 16px;
-            display: inline-block;
-        }
-
-        .features-title {
-            font-size: 2.25rem;
-            font-weight: 900;
-            color: #1b1b18;
-            margin-bottom: 24px;
-        }
-
-        .features-sub {
-            color: #6b7280;
-            font-size: 1.125rem;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 32px;
-        }
-
-        @media (min-width: 768px) {
-            .features-grid {
-                grid-template-columns: repeat(3, 1fr);
+            /* =============================================
+               HERO — page load animation (no scroll needed)
+               ============================================= */
+            .hero-badge {
+                animation: heroFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
             }
-        }
-
-        .feature-card {
-            padding: 32px;
-            border-radius: 24px;
-            background: #FDFDFC;
-            border: 1px solid #f3f4f6;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, #fbbf24, #fcd34d);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.5s ease;
-        }
-
-        .feature-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .feature-card:hover {
-            transform: translateY(-12px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-            border-color: #fcd34d;
-        }
-
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            background: #fbbf24;
-            border-radius: 12px;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
-            transition: transform 0.4s ease;
-        }
-
-        .feature-card:hover .feature-icon {
-            transform: rotate(12deg) scale(1.1);
-        }
-
-        .feature-icon svg {
-            width: 24px;
-            height: 24px;
-            color: white;
-        }
-
-        .feature-card h3 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
-
-        .feature-card p {
-            color: #6b7280;
-            line-height: 1.625;
-        }
-
-        /* Footer */
-        footer {
-            border-top: 1px solid #f3f4f6;
-            padding: 48px 24px;
-            background: white;
-            text-align: center;
-            color: #6b7280;
-            font-size: 0.875rem;
-        }
-
-        .footer-inner {
-            max-width: 1280px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 24px;
-        }
-
-        @media (min-width: 768px) {
-            .footer-inner {
-                flex-direction: row;
-                justify-content: space-between;
+            .hero-title {
+                animation: heroFadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
             }
-        }
+            .hero-subtitle {
+                animation: heroFadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+            }
+            .hero-cta {
+                animation: heroFadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+            }
+            .hero-trust {
+                animation: heroFadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.65s both;
+            }
+            .hero-card {
+                animation: heroSlideLeft 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+            }
 
-        .footer-links {
-            display: flex;
-            gap: 32px;
-        }
+            @keyframes heroFadeUp {
+                from { opacity: 0; transform: translateY(30px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
 
-        .footer-links a {
-            color: #6b7280;
-            text-decoration: none;
-            font-weight: 500;
-            position: relative;
-            transition: color 0.3s ease;
-        }
+            @keyframes heroSlideLeft {
+                from { opacity: 0; transform: translateX(50px) scale(0.97); }
+                to   { opacity: 1; transform: translateX(0) scale(1); }
+            }
 
-        .footer-links a:hover {
-            color: #fbbf24;
-        }
+            /* =============================================
+               NAV SLIDE DOWN
+               ============================================= */
+            nav {
+                animation: navSlide 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+            }
+            @keyframes navSlide {
+                from { opacity: 0; transform: translateY(-16px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
 
-        .footer-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #fbbf24;
-            transition: width 0.3s ease;
-        }
+            /* =============================================
+               PING DOT — keep existing Tailwind animate-ping
+               ============================================= */
 
-        .footer-links a:hover::after {
-            width: 100%;
-        }
+            /* =============================================
+               FEATURE CARDS — hover lift (extra polish)
+               ============================================= */
+            .feature-card {
+                transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                            box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                            border-color 0.3s ease;
+            }
+            .feature-card:hover {
+                transform: translateY(-6px);
+            }
 
-        /* Smooth scroll */
-        html {
-            scroll-behavior: smooth;
-        }
+            /* =============================================
+               PROGRESS BAR — animated on load
+               ============================================= */
+            .progress-fill {
+                width: 0%;
+                animation: progressGrow 1.4s cubic-bezier(0.22, 1, 0.36, 1) 1s forwards;
+            }
+            @keyframes progressGrow {
+                to { width: 75%; }
+            }
 
-        /* Counter animation */
-        .counter {
-            display: inline-block;
-        }
-    </style>
-    <base target="_blank">
-</head>
+            /* =============================================
+               MOCKUP CARD ITEMS — staggered entrance
+               ============================================= */
+            .mockup-item-1 {
+                animation: mockupItem 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.8s both;
+            }
+            .mockup-item-2 {
+                animation: mockupItem 0.6s cubic-bezier(0.22, 1, 0.36, 1) 1.0s both;
+            }
+            @keyframes mockupItem {
+                from { opacity: 0; transform: translateX(20px); }
+                to   { opacity: 1; transform: translateX(0); }
+            }
 
-<body>
+            /* =============================================
+               BLOB PULSE (background decoration)
+               ============================================= */
+            .blob-pulse {
+                animation: blobPulse 6s ease-in-out infinite alternate;
+            }
+            @keyframes blobPulse {
+                from { transform: scale(1) translate(0, 0); }
+                to   { transform: scale(1.15) translate(-10px, 10px); }
+            }
 
-    <nav id="navbar">
-        <div class="nav-logo">
-            <div class="nav-logo-icon">
-                <span>HS</span>
-            </div>
-            <span class="nav-logo-text">Hsab Sabon</span>
-        </div>
-        <div class="nav-links">
-            <a href="#features">How it works</a>
-            <a href="#" class="btn-primary">Get Started</a>
-        </div>
-    </nav>
+            /* =============================================
+               CTA DARK CARD — shimmer effect
+               ============================================= */
+            .cta-card {
+                position: relative;
+                overflow: hidden;
+            }
+            .cta-card::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(
+                    105deg,
+                    transparent 40%,
+                    rgba(251, 191, 36, 0.06) 50%,
+                    transparent 60%
+                );
+                background-size: 200% 100%;
+                animation: shimmer 3.5s ease-in-out infinite;
+            }
+            @keyframes shimmer {
+                from { background-position: 200% 0; }
+                to   { background-position: -200% 0; }
+            }
+        </style>
+    </head>
+    <body class="bg-[#FDFDFC] text-[#1b1b18] antialiased shadow-2xl overflow-x-hidden">
 
-    <main class="hero">
-        <div>
-            <div class="badge reveal">
-                BETA 1.0
-            </div>
-            <h1 class="reveal-left delay-1">
-                Manage your <span class="highlight">Coloc</span> expenses easily.
-            </h1>
-            <p class="reveal delay-2">
-                Keep your shared apartment finances clean. Track debts, split bills, and manage group expenses without
-                stress.
-            </p>
-            <div class="hero-buttons reveal delay-3">
-                <a href="#" class="btn-cta">Start Tracking Now</a>
-                <a href="#features" class="btn-outline">How it works</a>
-            </div>
-        </div>
-
-        <div class="hero-visual reveal-right delay-2">
-            <div class="hero-blob"></div>
-            <div class="hero-card">
-                <div class="card-header">
-                    <div>
-                        <p class="card-header-label">Total Spent</p>
-                        <h3 class="card-header-value" id="counter">0.00 DH</h3>
-                    </div>
-                    <div class="card-badge">+12%</div>
+        <!-- Navigation -->
+        <nav class="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto border-b border-gray-100">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-amber-400 rounded-lg flex items-center justify-center shadow-sm">
+                    <span class="text-white font-bold text-xl">HS</span>
                 </div>
-                <div class="space-y-4">
-                    <div class="card-item">
-                        <div style="display:flex;align-items:center;gap:12px;flex:1;">
-                            <div class="card-item-avatar" style="background:#fde68a;"></div>
-                            <div class="card-item-info">
-                                <p class="card-item-title">Grocery Shopping</p>
-                                <p class="card-item-sub">Paid by Member</p>
+                <span class="font-semibold text-lg tracking-tight uppercase">Hsab Sabon</span>
+            </div>
+
+            @if (Route::has('login'))
+                <div class="flex gap-4 items-center">
+                    @auth
+                        <a href="{{ url('/dashboard') }}" class="text-sm font-medium hover:text-amber-600 transition">Dashboard</a>
+                    @else
+                        <a href="{{ route('login') }}" class="text-sm font-medium hover:text-amber-600 transition">Log in</a>
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" class="px-4 py-2 bg-[#1b1b18] text-white rounded-md text-sm font-medium hover:bg-gray-800 transition shadow-sm">Get Started</a>
+                        @endif
+                    @endauth
+                </div>
+            @endif
+        </nav>
+
+        <!-- Hero Section -->
+        <main class="max-w-7xl mx-auto px-6 pt-16 pb-24">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+
+                <!-- Left Content -->
+                <div>
+                    <div class="hero-badge inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-100 text-amber-700 text-xs font-semibold mb-6">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                        </span>
+                        Beta Version 1.0
+                    </div>
+
+                    <h1 class="hero-title text-5xl lg:text-7xl font-bold leading-tight mb-6">
+                        Manage your <span class="text-amber-500 italic">Coloc</span> expenses easily.
+                    </h1>
+
+                    <p class="hero-subtitle text-gray-600 text-lg leading-relaxed mb-8 max-w-xl">
+                        Keep your shared apartment finances clean like soap. Track debts, split bills, and manage group expenses without the headache.
+                    </p>
+
+                    <div class="hero-cta flex flex-col sm:flex-row gap-4 text-center">
+                        <a href="{{ route('register') }}" class="px-8 py-4 bg-amber-400 text-[#1b1b18] font-bold rounded-xl hover:bg-amber-300 transition shadow-lg shadow-amber-200/50 text-lg">
+                            Start Tracking Now
+                        </a>
+                        <a href="#features" class="px-8 py-4 bg-white border border-gray-200 font-semibold rounded-xl hover:bg-gray-50 transition text-lg">
+                            How it works?
+                        </a>
+                    </div>
+
+                    <!-- Trust Badges -->
+                    <div class="hero-trust mt-12 flex items-center gap-6">
+                        <div class="flex -space-x-3">
+                            <div class="w-10 h-10 rounded-full border-2 border-white bg-gray-200"></div>
+                            <div class="w-10 h-10 rounded-full border-2 border-white bg-gray-300"></div>
+                            <div class="w-10 h-10 rounded-full border-2 border-white bg-gray-400"></div>
+                        </div>
+                        <p class="text-sm text-gray-500 font-medium">Join <span class="text-[#1b1b18] font-bold">+500 Users</span> in Morocco</p>
+                    </div>
+                </div>
+
+                <!-- Right Content (Visual representation) -->
+                <div class="hero-card relative">
+                    <div class="blob-pulse absolute -top-10 -right-10 w-64 h-64 bg-amber-100 rounded-full blur-3xl opacity-50"></div>
+                    <div class="relative bg-white border border-gray-100 rounded-3xl shadow-2xl p-6 overflow-hidden">
+                        <!-- Mockup Header -->
+                        <div class="flex justify-between items-end mb-8">
+                            <div>
+                                <p class="text-gray-400 text-xs uppercase tracking-widest font-bold">Total Spent</p>
+                                <h3 class="text-3xl font-black">2,450.00 DH</h3>
+                            </div>
+                            <div class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">
+                                +12% this month
                             </div>
                         </div>
-                        <span class="card-item-amount">-450 DH</span>
-                    </div>
-                    <div class="card-item card-item-dim">
-                        <div style="display:flex;align-items:center;gap:12px;flex:1;">
-                            <div class="card-item-avatar" style="background:#d1d5db;"></div>
-                            <div class="card-item-info">
-                                <p class="card-item-title">Electricity Bill</p>
-                                <p class="card-item-sub">Pending split</p>
+
+                        <!-- Mockup List -->
+                        <div class="space-y-4">
+                            <div class="mockup-item-1 flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold">🛒</div>
+                                    <div>
+                                        <p class="font-bold text-sm">Grocery Shopping</p>
+                                        <p class="text-xs text-gray-400 font-medium italic">Paid by Abdellah</p>
+                                    </div>
+                                </div>
+                                <span class="font-bold text-sm">-450 DH</span>
+                            </div>
+                            <div class="mockup-item-2 flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 opacity-60 italic">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">⚡</div>
+                                    <div>
+                                        <p class="font-bold text-sm italic">Electricity Bill</p>
+                                        <p class="text-xs text-gray-400 font-medium">Pending split...</p>
+                                    </div>
+                                </div>
+                                <span class="font-bold text-sm text-amber-600">Pending</span>
                             </div>
                         </div>
-                        <span class="card-item-amount card-item-pending">Pending</span>
+
+                        <!-- Progress Bar -->
+                        <div class="mt-8 pt-6 border-t border-gray-50">
+                            <div class="flex justify-between text-xs font-bold mb-2 uppercase tracking-tight">
+                                <span>Budget Progress</span>
+                                <span>75%</span>
+                            </div>
+                            <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                <div class="progress-fill bg-amber-400 h-full rounded-full shadow-inner"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </main>
 
-    <section id="features" class="features">
-        <div class="features-inner">
-            <div class="features-header">
-                <span class="features-label reveal">Features</span>
-                <p class="features-title reveal delay-1">Clean accounts for clear minds</p>
-                <p class="features-sub reveal delay-2">Tools designed for modern roommates to handle money fairly.</p>
             </div>
+        </main>
 
-            <div class="features-grid">
-                <div class="feature-card reveal-scale delay-1">
-                    <div class="feature-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h3>Quick Tracking</h3>
-                    <p>Add expenses in seconds. Track rent, utilities, or shared groceries instantly.</p>
+        <!-- Features Section -->
+        <section id="features" class="py-24 bg-[#FDFDFC] relative overflow-hidden">
+            <!-- Background Decoration -->
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+
+            <div class="max-w-7xl mx-auto px-6">
+                <!-- Section Header -->
+                <div class="text-center max-w-3xl mx-auto mb-20">
+                    <h2
+                        data-animate="fade-up"
+                        class="text-amber-500 font-bold tracking-widest uppercase text-sm mb-4"
+                    >How it works</h2>
+                    <p
+                        data-animate="fade-up"
+                        data-delay="200"
+                        class="text-4xl font-black text-[#1b1b18] mb-6"
+                    >Keep your "Sabon" clean and your accounts clear.</p>
+                    <p
+                        data-animate="fade-up"
+                        data-delay="400"
+                        class="text-gray-500 text-lg"
+                    >Everything you need to manage shared living costs without the awkward "Who owes who?" conversations.</p>
                 </div>
 
-                <div class="feature-card reveal-scale delay-2">
-                    <div class="feature-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3" />
-                        </svg>
+                <!-- Feature Cards -->
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Card 1 -->
+                    <div
+                        data-animate="fade-up"
+                        data-delay="100"
+                        class="feature-card group p-8 rounded-3xl bg-white border border-gray-100 hover:border-amber-200 hover:shadow-xl hover:shadow-amber-500/5"
+                    >
+                        <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                            📝
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Quick Tracking</h3>
+                        <p class="text-gray-500 leading-relaxed">
+                            Add expenses in seconds. Whether it's the rent, electricity bill, or just some groceries for the weekend.
+                        </p>
                     </div>
-                    <h3>Smart Splitting</h3>
-                    <p>Split bills equally or custom amounts. The system calculates debts automatically.</p>
+
+                    <!-- Card 2 -->
+                    <div
+                        data-animate="fade-up"
+                        data-delay="300"
+                        class="feature-card group p-8 rounded-3xl bg-white border border-gray-100 hover:border-amber-200 hover:shadow-xl hover:shadow-amber-500/5"
+                    >
+                        <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                            ⚖️
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Fair Splitting</h3>
+                        <p class="text-gray-500 leading-relaxed">
+                            Split bills equally or by custom percentages. Our algorithm calculates exactly who needs to pay what.
+                        </p>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div
+                        data-animate="fade-up"
+                        data-delay="500"
+                        class="feature-card group p-8 rounded-3xl bg-white border border-gray-100 hover:border-amber-200 hover:shadow-xl hover:shadow-amber-500/5"
+                    >
+                        <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                            🧼
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Clean Slates</h3>
+                        <p class="text-gray-500 leading-relaxed">
+                            Clear your debts with one click. Keep a history of all settled payments to avoid any future "l-hessaba".
+                        </p>
+                    </div>
                 </div>
 
-                <div class="feature-card reveal-scale delay-3">
-                    <div class="feature-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
-                        </svg>
+                <!-- Dark CTA Card -->
+                <div
+                    data-animate="scale-in"
+                    data-delay="100"
+                    class="cta-card mt-20 bg-[#1b1b18] rounded-[2.5rem] p-8 md:p-12 text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden"
+                >
+                    <div class="relative z-10">
+                        <h3
+                            data-animate="fade-left"
+                            data-delay="300"
+                            class="text-3xl font-bold mb-2"
+                        >Ready to clear the air?</h3>
+                        <p
+                            data-animate="fade-left"
+                            data-delay="450"
+                            class="text-gray-400"
+                        >Stop using messy WhatsApp groups and notebooks.</p>
                     </div>
-                    <h3>Settle Up</h3>
-                    <p>Keep a clean history of all payments. Clear debts and start fresh every month.</p>
+                    <a
+                        data-animate="fade-right"
+                        data-delay="400"
+                        href="{{ route('register') }}"
+                        class="relative z-10 px-8 py-4 bg-white text-[#1b1b18] font-bold rounded-xl hover:bg-amber-400 transition shadow-lg shrink-0"
+                    >
+                        Create My Group
+                    </a>
+                    <!-- Decor circles -->
+                    <div class="blob-pulse absolute top-0 right-0 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <footer>
-        <div class="footer-inner">
-            <p>&copy; 2026 HSAB SABON. Ismail Lakroune.</p>
-            <div class="footer-links">
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-                <a href="#">Contact</a>
+        <!-- Footer -->
+        <footer
+            data-animate="fade-up"
+            class="border-t border-gray-100 py-12 bg-white"
+        >
+            <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-gray-500 text-sm">
+                <p>&copy; 2026 HSAB SABON. All rights reserved by Ismail Lakroune.</p>
+                <div class="flex gap-8 font-medium">
+                    <a href="#" class="hover:text-[#1b1b18] transition">Features</a>
+                    <a href="#" class="hover:text-[#1b1b18] transition">Contact</a>
+                    <a href="#" class="hover:text-[#1b1b18] transition">Privacy</a>
+                </div>
             </div>
-        </div>
-    </footer>
+        </footer>
 
-    <script>
-        // ===== SCROLL REVEAL =====
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px 0px -50px 0px',
-            threshold: 0.1
-        };
+        <!-- =============================================
+             SCROLL ANIMATION SCRIPT
+             ============================================= -->
+        <script>
+            (function () {
+                'use strict';
 
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                    // Animate counter when card is visible
-                    if (entry.target.querySelector('#counter') || entry.target.id === 'counter') {
-                        animateCounter();
+                // All elements tagged with [data-animate]
+                const targets = document.querySelectorAll('[data-animate]');
+
+                if (!targets.length) return;
+
+                const observer = new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach((entry) => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('is-visible');
+                                // Unobserve after trigger → animation runs once
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    },
+                    {
+                        threshold: 0.12,       // trigger when 12% of element is visible
+                        rootMargin: '0px 0px -40px 0px', // a little early
                     }
-                }
-            });
-        }, observerOptions);
+                );
 
-        document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-rotate').forEach(el => {
-            revealObserver.observe(el);
-        });
+                targets.forEach((el) => observer.observe(el));
+            })();
+        </script>
 
-        // Also observe the hero card specifically for counter
-        const heroCard = document.querySelector('.hero-card');
-        if (heroCard) {
-            revealObserver.observe(heroCard);
-        }
-
-        // ===== COUNTER ANIMATION =====
-        let counterAnimated = false;
-
-        function animateCounter() {
-            if (counterAnimated) return;
-            counterAnimated = true;
-            const el = document.getElementById('counter');
-            const target = 2450;
-            const duration = 2000;
-            const start = performance.now();
-
-            function update(now) {
-                const elapsed = now - start;
-                const progress = Math.min(elapsed / duration, 1);
-                const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
-                const current = (eased * target).toFixed(2);
-                el.textContent = current.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' DH';
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                }
-            }
-            requestAnimationFrame(update);
-        }
-
-        // ===== NAVBAR SCROLL EFFECT =====
-        const navbar = document.getElementById('navbar');
-        let lastScroll = 0;
-
-        window.addEventListener('scroll', () => {
-            const currentScroll = window.pageYOffset;
-            if (currentScroll > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-            lastScroll = currentScroll;
-        });
-
-        // ===== PARALLAX BLOB =====
-        const blob = document.querySelector('.hero-blob');
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            if (blob) {
-                blob.style.transform = `translateY(${scrolled * 0.15}px)`;
-            }
-        });
-
-        // ===== MOUSE PARALLAX ON HERO CARD =====
-        const heroCardEl = document.querySelector('.hero-card');
-        const heroVisual = document.querySelector('.hero-visual');
-
-        if (heroVisual && heroCardEl) {
-            heroVisual.addEventListener('mousemove', (e) => {
-                const rect = heroVisual.getBoundingClientRect();
-                const x = (e.clientX - rect.left - rect.width / 2) / 25;
-                const y = (e.clientY - rect.top - rect.height / 2) / 25;
-                heroCardEl.style.transform =
-                    `perspective(1000px) rotateY(${x}deg) rotateX(${-y}deg) translateZ(10px)`;
-            });
-
-            heroVisual.addEventListener('mouseleave', () => {
-                heroCardEl.style.transform = 'perspective(1000px) rotateY(0) rotateX(0) translateZ(0)';
-            });
-        }
-
-        // Trigger initial animations for above-fold elements
-        setTimeout(() => {
-            document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach((el, i) => {
-                setTimeout(() => el.classList.add('active'), i * 150);
-            });
-            setTimeout(animateCounter, 600);
-        }, 300);
-    </script>
-
-</body>
-
+    </body>
 </html>
