@@ -1,93 +1,131 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-bold text-2xl text-white leading-tight">
-                {{ __('Financial Overview') }}
-            </h2>
-            <div class="flex gap-3">
-                <button @click="$dispatch('open-modal', 'join-coloc')" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl border border-slate-700 transition shadow-lg text-sm font-semibold">
-                    + Join Coloc
-                </button>
-                <button @click="$dispatch('open-modal', 'create-coloc')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition shadow-lg shadow-blue-500/20 text-sm font-semibold">
-                    Create New
-                </button>
+    <div x-data="{ showCreate: false, showJoin: false }">
+        <x-slot name="header">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold text-white uppercase tracking-[0.2em]">
+                    Financial Control Center
+                </h2>
+                <div class="flex gap-2">
+                    <button @click="showJoin = true" class="bg-slate-800 hover:bg-slate-700 text-white px-6 py-2 text-xs font-bold transition border border-slate-700">
+                        JOIN COLOCATION
+                    </button>
+                    <button @click="showCreate = true" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 text-xs font-bold transition">
+                        CREATE NEW
+                    </button>
+                </div>
+            </div>
+        </x-slot>
+
+        <div class="py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+                
+                <!-- Statistics -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-1">
+                    <div class="bg-slate-900 p-8 border-l-4 border-blue-600 shadow-2xl">
+                        <p class="text-slate-500 text-[10px] font-bold tracking-widest uppercase">Active Units</p>
+                        <p class="text-4xl font-light text-white mt-2">{{ $colocations->count() }}</p>
+                    </div>
+                    <div class="bg-slate-900 p-8 border-l-4 border-emerald-600 shadow-2xl">
+                        <p class="text-slate-500 text-[10px] font-bold tracking-widest uppercase">Total Credit</p>
+                        <p class="text-4xl font-light text-emerald-500 mt-2">Active</p>
+                    </div>
+                    <div class="bg-slate-900 p-8 border-l-4 border-rose-600 shadow-2xl">
+                        <p class="text-slate-500 text-[10px] font-bold tracking-widest uppercase">Pending Debts</p>
+                        <p class="text-4xl font-light text-rose-500 mt-2">Calculated</p>
+                    </div>
+                </div>
+
+                <!-- Colocations List -->
+                <div>
+                    <div class="flex items-center gap-4 mb-8">
+                        <h3 class="text-white text-xs font-bold tracking-[0.3em] uppercase">My Colocations</h3>
+                        <div class="flex-grow h-[1px] bg-slate-800"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @forelse($colocations as $coloc)
+                            <div class="bg-slate-900 border border-slate-800 hover:border-blue-600 transition-colors group">
+                                <div class="p-8">
+                                    <div class="flex justify-between items-start mb-6">
+                                        <div class="text-blue-500">
+                                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                        </div>
+                                        <span class="text-[9px] font-black tracking-tighter bg-blue-600 text-white px-2 py-1 uppercase italic">
+                                            {{ $coloc->pivot->role }}
+                                        </span>
+                                    </div>
+                                    
+                                    <h4 class="text-lg font-bold text-white uppercase tracking-wider">{{ $coloc->name }}</h4>
+                                    <p class="text-slate-500 text-[10px] font-mono mt-1">ID: {{ $coloc->invitation_code }}</p>
+
+                                    <div class="mt-8 pt-6 border-t border-slate-800 flex justify-between items-center">
+                                        <div class="flex -space-x-2">
+                                            @foreach($coloc->members->take(3) as $member)
+                                                <div class="w-7 h-7 bg-slate-700 border border-slate-900 text-[10px] flex items-center justify-center font-bold text-slate-300 uppercase">
+                                                    {{ substr($member->name, 0, 1) }}
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <a href="{{ route('colocations.show', $coloc) }}" class="text-[10px] font-bold text-white uppercase border-b border-blue-600 pb-1 hover:text-blue-500 transition">
+                                            Open Ledger
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="col-span-full border border-dashed border-slate-800 p-20 text-center">
+                                <p class="text-slate-600 text-xs font-bold uppercase tracking-widest">No Active Colocations Registered</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
             </div>
         </div>
-    </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-            
-            <!-- Welcome Section -->
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-                <div class="relative z-10">
-                    <h3 class="text-2xl font-bold text-white">Welcome back, {{ auth()->user()->name }}! 👋</h3>
-                    <p class="text-blue-100 mt-2">You are currently active in {{ $colocations->count() }} colocations.</p>
-                </div>
-                <!-- Abstract Design Shape -->
-                <div class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-            </div>
-
-            <!-- Colocations Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @forelse($colocations as $coloc)
-                    <a href="{{ route('colocations.show', $coloc) }}" class="group bg-slate-800/40 backdrop-blur-md border border-slate-700/50 p-6 rounded-3xl hover:border-blue-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="p-3 bg-blue-500/10 rounded-2xl">
-                                <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                            </div>
-                            <span class="text-[10px] font-bold tracking-widest uppercase bg-slate-700 px-2 py-1 rounded-md text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition">
-                                {{ $coloc->pivot->role }}
-                            </span>
-                        </div>
-                        
-                        <h4 class="text-xl font-bold text-white mb-1">{{ $coloc->name }}</h4>
-                        <p class="text-slate-400 text-xs mb-6 font-mono tracking-tighter">ID: {{ $coloc->invitation_code }}</p>
-
-                        <div class="flex items-center justify-between pt-4 border-t border-slate-700/50">
+        <!-- Manual Modal: Create Colocation -->
+        <div x-show="showCreate" class="fixed inset-0 z-50 overflow-y-auto" x-cloak>
+            <div class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm" @click="showCreate = false"></div>
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="relative bg-slate-900 border border-slate-800 w-full max-w-md p-10 shadow-2xl" @click.stop>
+                    <form method="post" action="{{ route('colocations.store') }}">
+                        @csrf
+                        <h2 class="text-sm font-bold text-white uppercase tracking-[0.2em] mb-8 text-center border-b border-slate-800 pb-4">Initialize Colocation</h2>
+                        <div class="space-y-6">
                             <div>
-                                <p class="text-slate-500 text-[10px] uppercase font-bold">Members</p>
-                                <p class="text-white font-semibold">{{ $coloc->members->count() }} People</p>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Identification Name</label>
+                                <input type="text" name="name" required class="w-full bg-slate-950 border-slate-800 text-white text-sm focus:ring-0 focus:border-blue-600 transition px-4 py-3 border">
                             </div>
-                            <div class="text-right">
-                                <p class="text-slate-500 text-[10px] uppercase font-bold">Balance</p>
-                                <p class="text-emerald-400 font-bold">Active</p>
+                            <div class="flex gap-2">
+                                <button type="button" @click="showCreate = false" class="w-1/3 border border-slate-800 text-slate-400 py-4 text-xs font-bold uppercase hover:bg-slate-800 transition">Cancel</button>
+                                <button type="submit" class="w-2/3 bg-blue-600 text-white py-4 text-xs font-bold uppercase tracking-widest hover:bg-blue-700 transition">Confirm</button>
                             </div>
                         </div>
-                    </a>
-                @empty
-                    <div class="col-span-full py-20 text-center bg-slate-800/20 border-2 border-dashed border-slate-700 rounded-3xl">
-                        <p class="text-slate-500 italic">No colocations found. Create one to get started!</p>
-                    </div>
-                @endforelse
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manual Modal: Join Colocation -->
+        <div x-show="showJoin" class="fixed inset-0 z-50 overflow-y-auto" x-cloak>
+            <div class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm" @click="showJoin = false"></div>
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="relative bg-slate-900 border border-slate-800 w-full max-w-md p-10 shadow-2xl" @click.stop>
+                    <form method="post" action="{{ route('colocations.join') }}">
+                        @csrf
+                        <h2 class="text-sm font-bold text-white uppercase tracking-[0.2em] mb-8 text-center border-b border-slate-800 pb-4">Sync Invitation Code</h2>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Access Token</label>
+                                <input type="text" name="invitation_code" required class="w-full bg-slate-950 border-slate-800 text-white text-sm focus:ring-0 focus:border-blue-600 transition px-4 py-3 border uppercase font-mono">
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="button" @click="showJoin = false" class="w-1/3 border border-slate-800 text-slate-400 py-4 text-xs font-bold uppercase hover:bg-slate-800 transition">Cancel</button>
+                                <button type="submit" class="w-2/3 bg-blue-600 text-white py-4 text-xs font-bold uppercase tracking-widest hover:bg-blue-700 transition">Join Now</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Modal Create -->
-    <x-modal name="create-coloc" focusable>
-        <form method="post" action="{{ route('colocations.store') }}" class="p-8 bg-slate-900">
-            @csrf
-            <h2 class="text-lg font-bold text-white mb-4">Start New Colocation</h2>
-            <input type="text" name="name" placeholder="E.g. Appartement 5, Résidence Al Amal" class="w-full bg-slate-800 border-slate-700 rounded-xl text-white mb-4 focus:ring-blue-500">
-            <div class="flex justify-end gap-3">
-                <x-secondary-button x-on:click="$dispatch('close')">Cancel</x-secondary-button>
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold">Create</button>
-            </div>
-        </form>
-    </x-modal>
-
-    <!-- Modal Join -->
-    <x-modal name="join-coloc" focusable>
-        <form method="post" action="{{ route('colocations.join') }}" class="p-8 bg-slate-900">
-            @csrf
-            <h2 class="text-lg font-bold text-white mb-4">Join Colocation</h2>
-            <p class="text-slate-400 text-sm mb-4">Enter the invitation code provided by the owner.</p>
-            <input type="text" name="invitation_code" placeholder="CODE123" class="w-full bg-slate-800 border-slate-700 rounded-xl text-white mb-4 focus:ring-blue-500 uppercase">
-            <div class="flex justify-end gap-3">
-                <x-secondary-button x-on:click="$dispatch('close')">Cancel</x-secondary-button>
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold">Join</button>
-            </div>
-        </form>
-    </x-modal>
 </x-app-layout>
