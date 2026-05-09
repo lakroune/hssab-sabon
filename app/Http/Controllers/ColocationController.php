@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Colocation;
@@ -7,11 +8,18 @@ use Illuminate\Support\Str;
 
 class ColocationController extends Controller
 {
-    public function index()
-    {
-        $colocations = auth()->user()->colocations;
-        return view('dashboard', compact('colocations'));
-    }
+  public function index()
+{
+    $user = auth()->user();
+
+    $colocations = $user->colocations;
+
+    $totalCredits = \App\Models\Debt::where('creditor_id', $user->id)->sum('amount');
+
+    $totalDebts = \App\Models\Debt::where('debtor_id', $user->id)->sum('amount');
+
+    return view('dashboard', compact('colocations', 'totalCredits', 'totalDebts'));
+}
 
     public function store(Request $request)
     {
@@ -49,8 +57,11 @@ class ColocationController extends Controller
 
     public function show(Colocation $colocation)
     {
+        if (!$colocation->members->contains(auth()->id())) {
+            abort(403);
+        }
         $colocation->load(['members', 'transactions.payer', 'debts.debtor', 'debts.creditor']);
-        
+
         $myDebts = $colocation->debts()->where('debtor_id', auth()->id())->sum('amount');
         $myCredits = $colocation->debts()->where('creditor_id', auth()->id())->sum('amount');
 
@@ -65,5 +76,18 @@ class ColocationController extends Controller
             ->get();
 
         return view('colocations.stats', compact('colocation', 'stats'));
+    }
+
+    public function regenerateCode(Colocation $colocation)
+    {
+        if ($colocation->owner_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $colocation->update([
+            'invitation_code' => strtoupper(Str::random(8))
+        ]);
+
+        return back()->with('success', 'New invitation code generated.');
     }
 }

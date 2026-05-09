@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ColocationController;
 use App\Http\Controllers\TransactionController;
@@ -10,25 +11,28 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+ 
 Route::middleware(['auth', 'verified'])->group(function () {
-    
+
     Route::get('/dashboard', [ColocationController::class, 'index'])->name('dashboard');
 
     Route::prefix('colocations')->group(function () {
         Route::post('/create', [ColocationController::class, 'store'])->name('colocations.store');
         Route::post('/join', [ColocationController::class, 'join'])->name('colocations.join');
-        
-        Route::middleware('can:view,colocation')->group(function () {
-            Route::get('/{colocation}', [ColocationController::class, 'show'])->name('colocations.show');
-            Route::get('/{colocation}/statistics', [ColocationController::class, 'stats'])->name('colocations.stats');
-            
-            Route::post('/{colocation}/transactions', [TransactionController::class, 'store'])->name('transactions.store');
-            Route::delete('/{colocation}/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
-            
-            Route::post('/{colocation}/settle', [DebtController::class, 'settle'])->name('debts.settle');
-            
-            Route::post('/{colocation}/shopping', [ShoppingListController::class, 'store'])->name('shopping.store');
-            Route::patch('/{colocation}/shopping/{item}', [ShoppingListController::class, 'update'])->name('shopping.update');
+
+        Route::group(['prefix' => '{colocation}'], function () {
+            Route::get('/', [ColocationController::class, 'show'])->name('colocations.show');
+            Route::get('/statistics', [ColocationController::class, 'stats'])->name('colocations.stats');
+
+            Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+            Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
+
+            Route::post('/regenerate-code', [ColocationController::class, 'regenerateCode'])->name('colocations.regenerate');
+
+            Route::post('/settle', [DebtController::class, 'settle'])->name('debts.settle');
+
+            Route::post('/shopping', [ShoppingListController::class, 'store'])->name('shopping.store');
+            Route::patch('/shopping/{item}', [ShoppingListController::class, 'update'])->name('shopping.update');
         });
     });
 
@@ -37,4 +41,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
