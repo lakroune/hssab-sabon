@@ -1,143 +1,93 @@
 <x-app-layout>
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <x-slot name="header">
+        <div class="flex items-center justify-between">
+            <h2 class="font-bold text-2xl text-white leading-tight">
+                {{ __('Financial Overview') }}
+            </h2>
+            <div class="flex gap-3">
+                <button @click="$dispatch('open-modal', 'join-coloc')" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl border border-slate-700 transition shadow-lg text-sm font-semibold">
+                    + Join Coloc
+                </button>
+                <button @click="$dispatch('open-modal', 'create-coloc')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition shadow-lg shadow-blue-500/20 text-sm font-semibold">
+                    Create New
+                </button>
+            </div>
+        </div>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
             
-            <!-- قسم الإحصائيات (3 كارتات في البيسي، 1 في الموبايل) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-                <div class="bg-blue-600 p-6 rounded-2xl shadow-lg text-white">
-                    <p class="text-blue-100 text-sm font-medium">مجموع المصاريف</p>
-                    <h3 class="text-3xl font-bold mt-1">{{ number_format($totalAmount, 2) }} <span class="text-lg">DH</span></h3>
+            <!-- Welcome Section -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                <div class="relative z-10">
+                    <h3 class="text-2xl font-bold text-white">Welcome back, {{ auth()->user()->name }}! 👋</h3>
+                    <p class="text-blue-100 mt-2">You are currently active in {{ $colocations->count() }} colocations.</p>
                 </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-gray-500 text-sm font-medium">نصيب كل واحد</p>
-                    <h3 class="text-3xl font-bold mt-1 text-gray-800">{{ number_format($averageShare, 2) }} <span class="text-lg text-gray-400">DH</span></h3>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 sm:col-span-2 lg:col-span-1">
-                    <p class="text-gray-500 text-sm font-medium">عدد الدراري</p>
-                    <h3 class="text-3xl font-bold mt-1 text-gray-800">{{ $users->count() }} <span class="text-lg text-gray-400">أشخاص</span></h3>
-                </div>
+                <!-- Abstract Design Shape -->
+                <div class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
             </div>
 
-            <!-- قسم الاقتراحات (شكون يخلص شكون) -->
-            @if(count($suggestions) > 0)
-            <div class="mb-8 bg-orange-50 border-r-4 border-orange-500 p-6 rounded-xl shadow-sm">
-                <h4 class="text-orange-800 font-bold mb-3 flex items-center">
-                    <span class="mr-2 text-xl">💡</span> تصفية الحسابات المقترحة:
-                </h4>
-                <div class="space-y-3">
-                    @foreach($suggestions as $sugg)
-                    <div class="flex flex-wrap items-center justify-between bg-white/50 p-3 rounded-lg border border-orange-100">
-                        <span class="text-gray-700 font-medium">
-                            <b class="text-red-500">{{ $sugg['from'] }}</b> ⮕ <b class="text-green-600">{{ $sugg['to'] }}</b>
-                        </span>
-                        <span class="font-bold text-gray-900">{{ number_format($sugg['amount'], 2) }} DH</span>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-            @endif
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <!-- فورم الإضافة (يسار في البيسي) -->
-                <div class="lg:col-span-4 order-2 lg:order-1">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 sticky top-6">
-                        <h3 class="text-lg font-bold text-gray-800 mb-6">➕ زيد مصروف جديد</h3>
-                        <form action="{{ route('expenses.store') }}" method="POST" class="space-y-4">
-                            @csrf
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">شنو شريتي؟</label>
-                                <input type="text" name="title" placeholder="مثلاً: بوطة، خضرة..." class="w-full border-gray-200 rounded-xl focus:ring-blue-500" required>
+            <!-- Colocations Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @forelse($colocations as $coloc)
+                    <a href="{{ route('colocations.show', $coloc) }}" class="group bg-slate-800/40 backdrop-blur-md border border-slate-700/50 p-6 rounded-3xl hover:border-blue-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-3 bg-blue-500/10 rounded-2xl">
+                                <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">الثمن (DH)</label>
-                                <input type="number" step="0.01" name="amount" placeholder="0.00" class="w-full border-gray-200 rounded-xl focus:ring-blue-500" required>
-                            </div>
-                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-md">
-                                حفظ المصروف
-                            </button>
-                        </form>
-
-                        <hr class="my-6">
+                            <span class="text-[10px] font-bold tracking-widest uppercase bg-slate-700 px-2 py-1 rounded-md text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition">
+                                {{ $coloc->pivot->role }}
+                            </span>
+                        </div>
                         
-                        <form action="{{ route('expenses.settle') }}" method="POST" onsubmit="return confirm('واش بصح تخلصتو كاملين؟ هادشي غيصفر الحساب!')">
-                            @csrf
-                            {{-- <button type="submit" class="w-full bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 font-medium py-3 rounded-xl transition border border-dashed border-gray-300">
-                                🧼 تصفية الحساب (Settle)
-                            </button> --}}
-                        </form>
-                    </div>
-                </div>
+                        <h4 class="text-xl font-bold text-white mb-1">{{ $coloc->name }}</h4>
+                        <p class="text-slate-400 text-xs mb-6 font-mono tracking-tighter">ID: {{ $coloc->invitation_code }}</p>
 
-                <!-- جدول الوضعية (يمين في البيسي) -->
-                <div class="lg:col-span-8 order-1 lg:order-2 space-y-6">
-                    <!-- كرتات المستخدمين -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                            <h3 class="font-bold text-gray-800 uppercase tracking-wider text-sm">وضعية الدراري</h3>
-                        </div>
-                        <div class="divide-y divide-gray-100">
-                            @foreach($users as $user)
-                            <div class="p-6 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-gray-50 transition">
-                                <div class="flex items-center space-x-4 space-x-reverse">
-                                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-                                        {{ substr($user->name, 0, 1) }}
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold text-gray-900">{{ $user->name }}</h4>
-                                        <p class="text-xs text-gray-400">خلص فالمجموع: {{ number_format($user->expenses_sum_amount ?? 0, 2) }} DH</p>
-                                    </div>
-                                </div>
-                                <div class="mt-4 sm:mt-0 text-right">
-                                    @php $bal = ($user->expenses_sum_amount ?? 0) - $averageShare; @endphp
-                                    @if($bal >= 0)
-                                        <span class="inline-flex items-center px-4 py-1 rounded-full text-sm font-bold bg-green-100 text-green-700">
-                                            كيسال: +{{ number_format($bal, 2) }}
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center px-4 py-1 rounded-full text-sm font-bold bg-red-100 text-red-700">
-                                            عليه: {{ number_format($bal, 2) }}
-                                        </span>
-                                    @endif
-                                </div>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-700/50">
+                            <div>
+                                <p class="text-slate-500 text-[10px] uppercase font-bold">Members</p>
+                                <p class="text-white font-semibold">{{ $coloc->members->count() }} People</p>
                             </div>
-                            @endforeach
+                            <div class="text-right">
+                                <p class="text-slate-500 text-[10px] uppercase font-bold">Balance</p>
+                                <p class="text-emerald-400 font-bold">Active</p>
+                            </div>
                         </div>
+                    </a>
+                @empty
+                    <div class="col-span-full py-20 text-center bg-slate-800/20 border-2 border-dashed border-slate-700 rounded-3xl">
+                        <p class="text-slate-500 italic">No colocations found. Create one to get started!</p>
                     </div>
-
-                    <!-- سجل المصاريف الأخيرة -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-50 bg-gray-50/50">
-                            <h3 class="font-bold text-gray-800 uppercase tracking-wider text-sm">آخر العمليات</h3>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-right">
-                                <thead class="bg-gray-50 text-gray-500 text-xs">
-                                    <tr>
-                                        <th class="px-6 py-3">المستفيد</th>
-                                        <th class="px-6 py-3">السبب</th>
-                                        <th class="px-6 py-3">الثمن</th>
-                                        <th class="px-6 py-3">الوقت</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    @forelse($expenses as $expense)
-                                    <tr class="hover:bg-gray-50 transition">
-                                        <td class="px-6 py-4 font-bold text-gray-700 text-sm">{{ $expense->user->name }}</td>
-                                        <td class="px-6 py-4 text-gray-600 text-sm">{{ $expense->title }}</td>
-                                        <td class="px-6 py-4 font-mono font-bold text-blue-600">{{ number_format($expense->amount, 2) }}</td>
-                                        <td class="px-6 py-4 text-gray-400 text-xs">{{ $expense->created_at->diffForHumans() }}</td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="4" class="px-6 py-10 text-center text-gray-400">باقي ماكاين تا مصروف فهاد الدورة</td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                @endforelse
             </div>
         </div>
     </div>
+
+    <!-- Modal Create -->
+    <x-modal name="create-coloc" focusable>
+        <form method="post" action="{{ route('colocations.store') }}" class="p-8 bg-slate-900">
+            @csrf
+            <h2 class="text-lg font-bold text-white mb-4">Start New Colocation</h2>
+            <input type="text" name="name" placeholder="E.g. Appartement 5, Résidence Al Amal" class="w-full bg-slate-800 border-slate-700 rounded-xl text-white mb-4 focus:ring-blue-500">
+            <div class="flex justify-end gap-3">
+                <x-secondary-button x-on:click="$dispatch('close')">Cancel</x-secondary-button>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold">Create</button>
+            </div>
+        </form>
+    </x-modal>
+
+    <!-- Modal Join -->
+    <x-modal name="join-coloc" focusable>
+        <form method="post" action="{{ route('colocations.join') }}" class="p-8 bg-slate-900">
+            @csrf
+            <h2 class="text-lg font-bold text-white mb-4">Join Colocation</h2>
+            <p class="text-slate-400 text-sm mb-4">Enter the invitation code provided by the owner.</p>
+            <input type="text" name="invitation_code" placeholder="CODE123" class="w-full bg-slate-800 border-slate-700 rounded-xl text-white mb-4 focus:ring-blue-500 uppercase">
+            <div class="flex justify-end gap-3">
+                <x-secondary-button x-on:click="$dispatch('close')">Cancel</x-secondary-button>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold">Join</button>
+            </div>
+        </form>
+    </x-modal>
 </x-app-layout>
