@@ -2,36 +2,34 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public function colocations(): BelongsToMany
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsToMany(Colocation::class)->withPivot('role')->withTimestamps();
     }
 
-    public function expenses()
+    public function paidTransactions(): HasMany
     {
-        return $this->hasMany(Expense::class);
+        return $this->hasMany(Transaction::class, 'payer_id');
+    }
+
+    public function receivedTransactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'receiver_id');
+    }
+
+    public function debtsAsDebtor(): HasMany
+    {
+        return $this->hasMany(Debt::class, 'debtor_id');
+    }
+
+    public function debtsAsCreditor(): HasMany
+    {
+        return $this->hasMany(Debt::class, 'creditor_id');
     }
 }
