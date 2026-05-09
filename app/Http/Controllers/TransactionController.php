@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
@@ -30,22 +31,47 @@ class TransactionController extends Controller
                 'category' => $request->category,
             ]);
 
-            if ($request->type === 'shared') {
-                $members = $colocation->members;
-                $count = $members->count();
-                $share = $request->amount / $count;
-
-                foreach ($members as $member) {
-                    if ($member->id !== auth()->id()) {
-                        $this->updateDebt($member->id, auth()->id(), $colocation->id, $share);
-                    }
-                }
-            } else {
-                $this->updateDebt($request->receiver_id, auth()->id(), $colocation->id, $request->amount);
-            }
+            $this->processDebt($transaction, $colocation, 'add');
         });
 
         return back()->with('success', 'Transaction added successfully');
+    }
+
+    public function destroy(Colocation $colocation, Transaction $transaction)
+    {
+        DB::transaction(function () use ($colocation, $transaction) {
+            $this->processDebt($transaction, $colocation, 'reverse');
+            $transaction->delete();
+        });
+
+        return back()->with('success', 'Transaction deleted and balances updated');
+    }
+
+    private function processDebt(Transaction $transaction, Colocation $colocation, $mode)
+    {
+        $amount = $transaction->amount;
+        $payerId = $transaction->payer_id;
+
+        if ($transaction->type === 'shared') {
+            $members = $colocation->members;
+            $share = $amount / $members->count();
+
+            foreach ($members as $member) {
+                if ($member->id !== $payerId) {
+                    if ($mode === 'add') {
+                        $this->updateDebt($member->id, $payerId, $colocation->id, $share);
+                    } else {
+                        $this->updateDebt($payerId, $member->id, $colocation->id, $share);
+                    }
+                }
+            }
+        } else {
+            if ($mode === 'add') {
+                $this->updateDebt($transaction->receiver_id, $payerId, $colocation->id, $amount);
+            } else {
+                $this->updateDebt($payerId, $transaction->receiver_id, $colocation->id, $amount);
+            }
+        }
     }
 
     private function updateDebt($debtorId, $creditorId, $colocationId, $amount)
@@ -78,11 +104,5 @@ class TransactionController extends Controller
             ['amount' => 0]
         );
         $debt->increment('amount', $amount);
-    }
-
-    public function destroy(Colocation $colocation, Transaction $transaction)
-    {
-        $transaction->delete();
-        return back()->with('success', 'Transaction deleted');
     }
 }
