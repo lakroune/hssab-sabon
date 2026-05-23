@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('colocation_user', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('user_id')->constrained()->onDelete('cascade');
-    $table->foreignId('colocation_id')->constrained()->onDelete('cascade');
-    $table->enum('role', ['admin', 'member'])->default('member');
-    $table->timestamps();
-});
+        Schema::create('colocation_user', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('colocation_id')->constrained()->onDelete('cascade');
+            $table->enum('role', ['admin', 'member'])->default('member');
+            $table->timestamps();
+        });
     }
 
     /**

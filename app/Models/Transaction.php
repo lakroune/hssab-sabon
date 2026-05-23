@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -10,8 +11,14 @@ class Transaction extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'description', 'amount', 'type', 'payer_id', 
-        'receiver_id', 'colocation_id', 'category', 'is_settled'
+        'description',
+        'amount',
+        'type',
+        'payer_id',
+        'receiver_id',
+        'colocation_id',
+        'category',
+        'is_settled'
     ];
 
     public function payer(): BelongsTo

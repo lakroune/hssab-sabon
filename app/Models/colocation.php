@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -8,7 +9,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Colocation extends Model
 {
-    protected $fillable = ['name', 'invitation_code', 'owner_id', 'total_balance'];
+    protected $fillable = [
+        'name',
+        'invitation_code',
+        'owner_id',
+        'total_balance'
+    ];
 
     public function owner(): BelongsTo
     {

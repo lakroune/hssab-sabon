@@ -10,10 +10,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
-class User extends Authenticatable implements MustVerifyEmail
+use Spatie\Permission\Traits\HasRoles;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+
+class User extends Authenticatable implements MustVerifyEmail,FilamentUser
 {
 
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
 
     protected $fillable = [
@@ -52,6 +56,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Debt::class, 'creditor_id');
     }
 
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // return $this->hasRole('super_admin');
+        return true;
+    }
     public function sendEmailVerificationNotification()
     {
         $this->notify(new class extends VerifyEmail {

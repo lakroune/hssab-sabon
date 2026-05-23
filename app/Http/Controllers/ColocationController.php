@@ -8,18 +8,24 @@ use Illuminate\Support\Str;
 
 class ColocationController extends Controller
 {
-  public function index()
-{
-    $user = auth()->user();
+    public function index()
+    {
+        $user = auth()->user();
 
-    $colocations = $user->colocations;
+        // كنجيبو الكولوكاسيونات، وكنزيدو ليهم مجموع المصاريف (amount) ديال هاد اليوزر في كل كولوكاسيون
+        $colocations = $user->colocations()
+            ->withSum([
+                'transactions as my_total_spent' => function ($query) use ($user) {
+                    $query->where('payer_id', $user->id);
+                }
+            ], 'amount')
+            ->get();
 
-    $totalCredits = \App\Models\Debt::where('creditor_id', $user->id)->sum('amount');
+        $totalCredits = \App\Models\Debt::where('creditor_id', $user->id)->sum('amount');
+        $totalDebts = \App\Models\Debt::where('debtor_id', $user->id)->sum('amount');
 
-    $totalDebts = \App\Models\Debt::where('debtor_id', $user->id)->sum('amount');
-
-    return view('dashboard', compact('colocations', 'totalCredits', 'totalDebts'));
-}
+        return view('dashboard', compact('colocations', 'totalCredits', 'totalDebts'));
+    }
 
     public function store(Request $request)
     {
